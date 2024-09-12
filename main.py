@@ -122,7 +122,7 @@ class DocumentProcessor:
 st.set_page_config(page_title='DocQA', layout='wide')
 
 def main():
-    st.title('GPT-4o-mini Document QA using RAG')
+    st.title('🤖GPT-4o-mini Document QA using RAG')
 
     with st.sidebar:
         st.title('Hi there!')

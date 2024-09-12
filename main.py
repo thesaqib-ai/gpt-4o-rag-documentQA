@@ -89,7 +89,7 @@ class DocumentProcessor:
         llm = ChatOpenAI(
             model="gpt-4o-mini",
             temperature=1,
-            max_tokens=512,
+            max_tokens=1024,
             max_retries=2
         )
 

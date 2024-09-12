@@ -21,10 +21,7 @@ logging.basicConfig(level=logging.INFO)
 class DocumentProcessor:
     def __init__(self):
         # Configuring OpenAI API key
-        working_dir = os.path.dirname(os.path.abspath(__file__))
-        config_data = json.load(open(f"{working_dir}/config.json"))
-        OPENAI_API_KEY = config_data["OPENAI_API_KEY"]
-        os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+        OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
         self.openai_api_key = OPENAI_API_KEY
 
     def get_pages(self, uploaded_file):
@@ -72,9 +69,7 @@ class DocumentProcessor:
         # Initialize embeddings with the selected model
         embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
         qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
-        config_data = json.load(open(f"{os.path.dirname(os.path.abspath(__file__))}/config.json"))
-        QDRANT_API_KEY = config_data["QDRANT_API_KEY"]
-        os.environ["QDRANT_API_KEY"] = QDRANT_API_KEY
+        QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
         qdrant_api = QDRANT_API_KEY
         collection_name = clean_file_name
         

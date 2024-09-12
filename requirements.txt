@@ -5,3 +5,4 @@ langchain-huggingface
 langchain-qdrant
 langchain-openai
 langchain-core
+pypdf

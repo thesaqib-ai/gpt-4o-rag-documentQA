@@ -1,9 +1,4 @@
 streamlit
-re
-os
-json
-logging
-tempfile
 langchain-community
 langchain
 langchain-huggingface

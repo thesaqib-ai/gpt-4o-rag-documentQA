@@ -1,2 +1,12 @@
-openai==1.44.1
-streamlit==1.38.0
+streamlit
+re
+os
+json
+logging
+tempfile
+langchain-community
+langchain
+langchain-huggingface
+langchain-qdrant
+langchain-openai
+langchain-core

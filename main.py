@@ -59,7 +59,7 @@ class DocumentProcessor:
             page_split = text_splitter.split_text(page.page_content)
             # Create Document objects for each chunk
             for page_sub_split in page_split:
-                metadata = {"source": "Ethics Week1 Report", "page_no": page.metadata["page"] + 1}
+                metadata = {"source": uploaded_file.name, "page_no": page.metadata["page"] + 1}
                 document_obj = LangChainDocument(page_content=page_sub_split, metadata=metadata)
                 document_list.append(document_obj)
         # Extract the file name without extension and clean it

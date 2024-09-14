@@ -4,7 +4,7 @@ import os
 import json
 import logging
 import tempfile
-import openai
+from openai import OpenAI
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_qdrant import QdrantVectorStore
@@ -17,12 +17,14 @@ from langchain_core.runnables import RunnablePassthrough
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-class DocumentProcessor:
-    def __init__(self):
-        # Configuring OpenAI API key
-        self.openai_api_key = st.secrets["OPENAI_API_KEY"]
-        openai.api_key = self.openai_api_key
+# Initialize OpenAI client
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+def get_embedding(text, model="text-embedding-3-small"):
+    text = text.replace("\n", " ")
+    return client.embeddings.create(input=[text], model=model).data[0].embedding
+
+class DocumentProcessor:
     def get_pages(self, uploaded_file):
         if not uploaded_file:
             logging.error('No file provided.')
@@ -50,32 +52,25 @@ class DocumentProcessor:
         
         # List to hold the document objects for embedding
         document_list = []
+        embeddings = []
+        
         # Check if `document_pages` contains a list of pages (PDF)
         for page in document_pages:
             # If page is already a LangChain Document (for PDFs)
             page_split = text_splitter.split_text(page.page_content)
             # Create Document objects for each chunk
             for page_sub_split in page_split:
-                metadata = {"source": "Ethics Week1 Report", "page_no": page.metadata["page"] + 1}
+                metadata = {"source": uploaded_file.name, "page_no": page.metadata["page"] + 1}
                 document_obj = LangChainDocument(page_content=page_sub_split, metadata=metadata)
                 document_list.append(document_obj)
+                # Generate embeddings
+                embedding = get_embedding(page_sub_split)
+                embeddings.append(embedding)
         
         # Extract the file name without extension and clean it
         file_name = os.path.splitext(uploaded_file.name)[0]
         # Optionally, remove spaces and special characters
         clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', file_name)
-        
-        # Generate embeddings using OpenAI
-        def get_openai_embeddings(texts):
-            response = openai.Embedding.create(
-                input=texts,
-                model="text-embedding-3-small"  # or any other suitable model
-            )
-            return [embedding['embedding'] for embedding in response['data']]
-        
-        # Generate embeddings for document_list
-        document_texts = [doc.page_content for doc in document_list]
-        embeddings = get_openai_embeddings(document_texts)
         
         # Create and store the embeddings in the Qdrant vector store/database
         qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"

@@ -126,7 +126,7 @@ class DocumentProcessor:
 
         # Chain for RAG
         rag_chain = (
-            {"context": formatted_docs, "question": RunnablePassthrough()}
+            {"context": RunnablePassthrough() | (lambda _: formatted_docs),"question": RunnablePassthrough()}
             | custom_rag_prompt
             | llm
             | StrOutputParser()

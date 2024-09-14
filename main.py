@@ -4,9 +4,9 @@ import os
 import json
 import logging
 import tempfile
+import openai
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from langchain.docstore.document import Document as LangChainDocument
 from langchain_openai import ChatOpenAI
@@ -14,15 +14,14 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 class DocumentProcessor:
     def __init__(self):
         # Configuring OpenAI API key
-        OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-        self.openai_api_key = OPENAI_API_KEY
+        self.openai_api_key = st.secrets["OPENAI_API_KEY"]
+        openai.api_key = self.openai_api_key
 
     def get_pages(self, uploaded_file):
         if not uploaded_file:
@@ -36,7 +35,7 @@ class DocumentProcessor:
 
     def _get_pdf_pages(self, uploaded_file):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf", mode='wb') as temp_file:
-            chunk_size = 8192
+            chunk_size = 8191
             for chunk in iter(lambda: uploaded_file.read(chunk_size), b""):
                 temp_file.write(chunk)
             temp_file_path = temp_file.name
@@ -45,15 +44,13 @@ class DocumentProcessor:
         pages = loader.load()
         return pages
 
-
-
     def create_embeddings(self, document_pages, uploaded_file):
         # Initialize the text splitter
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=300)
         
         # List to hold the document objects for embedding
         document_list = []
-        # Check if `document_pages` contains a list of  pages (PDF)
+        # Check if `document_pages` contains a list of pages (PDF)
         for page in document_pages:
             # If page is already a LangChain Document (for PDFs)
             page_split = text_splitter.split_text(page.page_content)
@@ -62,28 +59,38 @@ class DocumentProcessor:
                 metadata = {"source": "Ethics Week1 Report", "page_no": page.metadata["page"] + 1}
                 document_obj = LangChainDocument(page_content=page_sub_split, metadata=metadata)
                 document_list.append(document_obj)
+        
         # Extract the file name without extension and clean it
         file_name = os.path.splitext(uploaded_file.name)[0]
         # Optionally, remove spaces and special characters
         clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', file_name)
-        # Initialize embeddings with the selected model
-        embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
-        QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
-        qdrant_api = QDRANT_API_KEY
-        collection_name = clean_file_name
+        
+        # Generate embeddings using OpenAI
+        def get_openai_embeddings(texts):
+            response = openai.Embedding.create(
+                input=texts,
+                model="text-embedding-3-small"  # or any other suitable model
+            )
+            return [embedding['embedding'] for embedding in response['data']]
+        
+        # Generate embeddings for document_list
+        document_texts = [doc.page_content for doc in document_list]
+        embeddings = get_openai_embeddings(document_texts)
         
         # Create and store the embeddings in the Qdrant vector store/database
+        qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
+        QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
+        collection_name = clean_file_name
+        
         qdrant = QdrantVectorStore.from_documents(
             document_list,
-            embedding,
+            embeddings,
             url=qdrant_url,
-            api_key=qdrant_api,
+            api_key=QDRANT_API_KEY,
             collection_name=collection_name
-            )
+        )
                             
         return qdrant
-
 
     def generate_response(self, retriever, query_text):
         llm = ChatOpenAI(
@@ -174,6 +181,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

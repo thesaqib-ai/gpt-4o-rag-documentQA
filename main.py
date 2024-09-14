@@ -134,7 +134,8 @@ class DocumentProcessor:
 
         # Get the final response
         response = rag_chain.invoke(query_text)
-
+        # Print the final response along with the retrieved chunks
+        st.write(f"\nGenerated Response: {response}\n")
         return response
 
 

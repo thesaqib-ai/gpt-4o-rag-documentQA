@@ -93,13 +93,13 @@ class DocumentProcessor:
             max_retries=2
         )
 
-        template = """Use the following document to answer the question at the end. Go through the content and look for the answers.
+        template = """Use the following book content to answer the question at the end. Go through the book's content and look for the answers.
         If you don't find relevant information in the document, just say that Please ask relevant questions!, Don't try to make up an answer.
         
 
         {context}
 
-        Question: {question} according to this document
+        Question: {question} according to the book
 
         Helpful Answer:"""
 

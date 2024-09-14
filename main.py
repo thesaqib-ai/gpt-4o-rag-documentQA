@@ -49,7 +49,7 @@ class DocumentProcessor:
 
     def create_embeddings(self, document_pages, uploaded_file):
         # Initialize the text splitter
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400)
         
         # List to hold the document objects for embedding
         document_list = []

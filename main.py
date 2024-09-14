@@ -47,43 +47,43 @@ class DocumentProcessor:
         return pages
 
     def create_embeddings(self, document_pages, uploaded_file):
-    # Initialize the text splitter
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=300)
+        # Initialize the text splitter
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=300)
     
-    # List to hold the document objects for embedding
-    document_list = []
+        # List to hold the document objects for embedding
+        document_list = []
     
-    # Check if `document_pages` contains a list of pages (PDF)
-    for page in document_pages:
-        # If page is already a LangChain Document (for PDFs)
-        page_split = text_splitter.split_text(page.page_content)
-        # Create Document objects for each chunk
-        for page_sub_split in page_split:
-            metadata = {"source": uploaded_file.name, "page_no": page.metadata["page"] + 1}
-            document_obj = LangChainDocument(page_content=page_sub_split, metadata=metadata)
-            document_list.append(document_obj)
+        # Check if `document_pages` contains a list of pages (PDF)
+        for page in document_pages:
+            # If page is already a LangChain Document (for PDFs)
+            page_split = text_splitter.split_text(page.page_content)
+            # Create Document objects for each chunk
+            for page_sub_split in page_split:
+                metadata = {"source": uploaded_file.name, "page_no": page.metadata["page"] + 1}
+                document_obj = LangChainDocument(page_content=page_sub_split, metadata=metadata)
+                document_list.append(document_obj)
     
-    # Extract the file name without extension and clean it
-    file_name = os.path.splitext(uploaded_file.name)[0]
-    clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', file_name)
+        # Extract the file name without extension and clean it
+        file_name = os.path.splitext(uploaded_file.name)[0]
+        clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', file_name)
     
-    # Initialize embeddings with the selected model
-    embedding = lambda text: get_embedding(text, model='text-embedding-3-small')
+        # Initialize embeddings with the selected model
+        embedding = lambda text: get_embedding(text, model='text-embedding-3-small')
 
-    qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
-    QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
-    collection_name = clean_file_name
+        qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
+        QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
+        collection_name = clean_file_name
     
-    # Create Qdrant vector store
-    qdrant = QdrantVectorStore.from_documents(
-        document_list,
-        embedding,
-        url=qdrant_url,
-        api_key=QDRANT_API_KEY,
-        collection_name=collection_name
-    )
+        # Create Qdrant vector store
+        qdrant = QdrantVectorStore.from_documents(
+            document_list,
+            embedding,
+            url=qdrant_url,
+            api_key=QDRANT_API_KEY,
+            collection_name=collection_name
+        )
                             
-    return qdrant
+        return qdrant
 
 
     def generate_response(self, retriever, query_text):

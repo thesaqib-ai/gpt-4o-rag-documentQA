@@ -86,7 +86,7 @@ class DocumentProcessor:
                             
         return qdrant
     def generate_response(self, retriever, query_text):
-        # Initialize the LLM model
+             # Initialize the LLM model
         llm = ChatOpenAI(
             model="gpt-4o-mini",
             temperature=1,
@@ -111,9 +111,6 @@ class DocumentProcessor:
         # Set the number of chunks to retrieve
         num_chunks = 5
 
-        # Modify the retriever to limit the number of results
-        retriever = retriever.as_retriever(top_k=num_chunks)
-
         # Retrieve documents/chunks related to the query
         retrieved_docs = retriever.get_relevant_documents(query_text)
 
@@ -137,8 +134,6 @@ class DocumentProcessor:
 
         # Get the final response
         response = rag_chain.invoke(query_text)
-
-   
 
         return response
 

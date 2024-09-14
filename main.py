@@ -69,7 +69,7 @@ class DocumentProcessor:
         clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', file_name)
     
         # Initialize embeddings with the OpenAI model
-        embedding_model = OpenAIEmbeddings(model_name="text-embedding-3-small", openai_api_key=st.secrets["OPENAI_API_KEY"])
+        embedding_model = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=st.secrets["OPENAI_API_KEY"])
 
         qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
         QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]

@@ -161,7 +161,7 @@ def main():
         # Generate response from the model without the button
         with st.spinner('Thinking...'):
             try:
-                retriever = st.session_state.qdrant.as_retriever()
+                retriever = st.session_state.qdrant.as_retriever(k=10)
                 document_processor = DocumentProcessor()
                 response = document_processor.generate_response(retriever, query_text)
                 st.session_state.chat_history.append({"role": "assistant", "content": response})

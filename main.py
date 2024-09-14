@@ -85,62 +85,62 @@ class DocumentProcessor:
         )
                             
         return qdrant
-def generate_response(self, retriever, query_text):
-    # Initialize the LLM model
-    llm = ChatOpenAI(
-        model="gpt-4o-mini",
-        temperature=1,
-        max_tokens=1024,
-        max_retries=2
-    )
+    def generate_response(self, retriever, query_text):
+        # Initialize the LLM model
+        llm = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=1,
+            max_tokens=1024,
+            max_retries=2
+        )
 
-    # Template for the final prompt
-    template = """Use the following book content to answer the question at the end. Go through the book's content and look for the answers.
-    If you don't find relevant information in the document, just say that Please ask relevant questions!, Don't try to make up an answer.
+        # Template for the final prompt
+        template = """Use the following book content to answer the question at the end. Go through the book's content and look for the answers.
+        If you don't find relevant information in the document, just say that Please ask relevant questions!, Don't try to make up an answer.
 
-    {context}
+        {context}
 
-    Question: {question} according to the book
+        Question: {question} according to the book
 
-    Helpful Answer:"""
+        Helpful Answer:"""
 
-    # Helper function to format retrieved documents
-    def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
+        # Helper function to format retrieved documents
+        def format_docs(docs):
+            return "\n\n".join(doc.page_content for doc in docs)
 
-    # Set the number of chunks to retrieve
-    num_chunks = 5
+        # Set the number of chunks to retrieve
+        num_chunks = 5
 
-    # Modify the retriever to limit the number of results
-    retriever = retriever.as_retriever(top_k=num_chunks)
+        # Modify the retriever to limit the number of results
+        retriever = retriever.as_retriever(top_k=num_chunks)
 
-    # Retrieve documents/chunks related to the query
-    retrieved_docs = retriever.get_relevant_documents(query_text)
+        # Retrieve documents/chunks related to the query
+        retrieved_docs = retriever.get_relevant_documents(query_text)
 
-    # Print the retrieved chunks (page content)
-    for i, doc in enumerate(retrieved_docs):
-        print(f"Chunk {i+1}: {doc.page_content}\n")
+        # Print the retrieved chunks (page content)
+        for i, doc in enumerate(retrieved_docs):
+            print(f"Chunk {i+1}: {doc.page_content}\n")
 
-    # Format the retrieved documents
-    formatted_docs = format_docs(retrieved_docs)
+        # Format the retrieved documents
+        formatted_docs = format_docs(retrieved_docs)
 
-    # Define the custom RAG prompt
-    custom_rag_prompt = PromptTemplate.from_template(template)
+        # Define the custom RAG prompt
+        custom_rag_prompt = PromptTemplate.from_template(template)
 
-    # Chain for RAG
-    rag_chain = (
-        {"context": formatted_docs, "question": RunnablePassthrough()}
-        | custom_rag_prompt
-        | llm
-        | StrOutputParser()
-    )
+        # Chain for RAG
+        rag_chain = (
+            {"context": formatted_docs, "question": RunnablePassthrough()}
+            | custom_rag_prompt
+            | llm
+            | StrOutputParser()
+        )
 
-    # Get the final response
-    response = rag_chain.invoke(query_text)
+        # Get the final response
+        response = rag_chain.invoke(query_text)
 
    
 
-    return response
+        return response
 
 
 

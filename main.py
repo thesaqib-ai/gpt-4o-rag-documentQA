@@ -68,7 +68,7 @@ class DocumentProcessor:
         clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', file_name)
         # Initialize embeddings with the selected model
         embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
-        qdrant_url = "https://f6c816ad-c10a-4487-9692-88d5ee23882a.europe-west3-0.gcp.cloud.qdrant.io:6333"
+        qdrant_url = "https://ecdec029-e383-4a3f-a185-4226dfba52d3.eu-west-2-0.aws.cloud.qdrant.io:6333"
         QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
         qdrant_api = QDRANT_API_KEY
         collection_name = clean_file_name

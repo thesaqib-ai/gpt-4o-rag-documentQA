@@ -21,10 +21,7 @@ logging.basicConfig(level=logging.INFO)
 class DocumentProcessor:
     def __init__(self):
         # Configuring OpenAI API key
-        working_dir = os.path.dirname(os.path.abspath(__file__))
-        config_data = json.load(open(f"{working_dir}/config.json"))
-        OPENAI_API_KEY = config_data["OPENAI_API_KEY"]
-        os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+        OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
         self.openai_api_key = OPENAI_API_KEY
 
     def get_pages(self, uploaded_file):
@@ -62,7 +59,7 @@ class DocumentProcessor:
             page_split = text_splitter.split_text(page.page_content)
             # Create Document objects for each chunk
             for page_sub_split in page_split:
-                metadata = {"source": "", "page_no": page.metadata["page"] + 1}
+                metadata = {"source": uploaded_file.name, "page_no": page.metadata["page"] + 1}
                 document_obj = LangChainDocument(page_content=page_sub_split, metadata=metadata)
                 document_list.append(document_obj)
         # Extract the file name without extension and clean it
@@ -72,9 +69,7 @@ class DocumentProcessor:
         # Initialize embeddings with the selected model
         embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
         qdrant_url = "https://ecdec029-e383-4a3f-a185-4226dfba52d3.eu-west-2-0.aws.cloud.qdrant.io:6333"
-        config_data = json.load(open(f"{os.path.dirname(os.path.abspath(__file__))}/config.json"))
-        QDRANT_API_KEY = config_data["QDRANT_API_KEY"]
-        os.environ["QDRANT_API_KEY"] = QDRANT_API_KEY
+        QDRANT_API_KEY = st.secrets["QDRANT_API_KEY"]
         qdrant_api = QDRANT_API_KEY
         collection_name = clean_file_name
         
@@ -94,13 +89,13 @@ class DocumentProcessor:
         llm = ChatOpenAI(
             model="gpt-4o-mini",
             temperature=1,
-            max_tokens=512,
+            max_tokens=1024,
             max_retries=2
         )
 
         template = """Use the following document to answer the question at the end. Go through the content and look for the answers.
-        If you don't find relevant information in the document, just say that Please ask relevant questions!, Don't try to make up an answer.
-        Use five sentences maximum and keep the answer as concise as possible.
+        If you don't find relevant information in the document, don't try to make up an answer.
+        
 
         {context}
 
@@ -127,7 +122,7 @@ class DocumentProcessor:
 st.set_page_config(page_title='DocQA', layout='wide')
 
 def main():
-    st.title('AI-Powered Analysis & Reporting Application')
+    st.title('🤖AI-Powered Analysis & Reporting Application')
 
     with st.sidebar:
         st.title('Hi there!')

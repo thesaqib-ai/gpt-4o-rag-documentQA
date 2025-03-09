@@ -94,7 +94,7 @@ class DocumentProcessor:
         )
 
         template = """Use the following document to answer the question at the end. Go through the content and look for the answers.
-        If you don't find relevant information in the document, don't try to make up an answer.
+        If you don't find relevant information in the document, don't try to make up an answer. You can reply to the greetings.
         
 
         {context}

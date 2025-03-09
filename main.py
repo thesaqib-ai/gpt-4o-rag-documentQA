@@ -49,7 +49,7 @@ class DocumentProcessor:
 
     def create_embeddings(self, document_pages, uploaded_file):
         # Initialize the text splitter
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=4000, chunk_overlap=200)
         
         # List to hold the document objects for embedding
         document_list = []
@@ -87,9 +87,9 @@ class DocumentProcessor:
 
     def generate_response(self, retriever, query_text):
         llm = ChatOpenAI(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             temperature=1,
-            max_tokens=1024,
+            max_tokens=2048,
             max_retries=2
         )
 

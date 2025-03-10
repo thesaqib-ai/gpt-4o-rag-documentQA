@@ -139,23 +139,20 @@ class DocumentProcessor:
 st.set_page_config(page_title='DocQA', layout='wide')
 
 def main():
-    st.title('🤖AI-Powered Analysis & Reporting Application')
+    st.title('🤖 AI-Powered Analysis & Reporting Application')
 
     with st.sidebar:
         st.title('Hi there!')
         st.markdown('Drop your docs here:')
         uploaded_file = st.file_uploader('Upload a PDF or Word file:', type=['pdf', 'docx', 'doc'])
     
-    # Initialize chat session in Streamlit if not already present
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # Display chat history
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # Input field for user's message
     query_text = st.chat_input()
 
     if uploaded_file:
@@ -165,45 +162,42 @@ def main():
                 document_pages = document_processor.get_pages(uploaded_file)
                 qdrant = document_processor.create_embeddings(document_pages, uploaded_file)
                 st.session_state.qdrant = qdrant
-                st.success('Document processed and embeddings created successfully!')
+                st.success('✅ Document processed and embeddings created successfully!')
             except Exception as e:
-                st.error(f'Error processing document: {str(e)}')
+                st.error(f'❌ Error processing document: {str(e)}')
 
-    # Display summarize button once, outside the loop
+    # Display summarize button properly
     if uploaded_file and 'qdrant' in st.session_state:
-        col1, col2 = st.columns([5, 1])  # Create layout with chat bar and button side-by-side
-        
-        with col2:
-            if st.button("📄 Summarize"):
-                summary_query = "provide detailed summary of this document"
-    
-                # Display user's request in chat
-                st.chat_message("user").markdown(summary_query)
-                st.session_state.chat_history.append({"role": "user", "content": summary_query})
-    
-                # Generate response
-                with st.spinner('Generating summary...'):
-                    try:
-                        retriever = st.session_state.qdrant.as_retriever()
-                        document_processor = DocumentProcessor()
-                        summary_response = document_processor.generate_response(retriever, summary_query)
-                        st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
-                        
-                        # Display the summary in the chat interface
-                        with st.chat_message("assistant"):
-                            st.write(summary_response)
-                    except Exception as e:
-                        st.error(f"An error occurred while summarizing: {str(e)}")
+        with st.container():
+            st.markdown("### 📄 Generate Summary")
+            col1, col2, col3 = st.columns([2, 1, 2])  # Centering the button
+            
+            with col2:
+                if st.button("📑 Summarize"):
+                    summary_query = "Provide a detailed summary of this document"
+                    
+                    # Display user's request
+                    st.chat_message("user").markdown(summary_query)
+                    st.session_state.chat_history.append({"role": "user", "content": summary_query})
+                    
+                    with st.spinner('⏳ Generating summary...'):
+                        try:
+                            retriever = st.session_state.qdrant.as_retriever()
+                            document_processor = DocumentProcessor()
+                            summary_response = document_processor.generate_response(retriever, summary_query)
+                            st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
+                            
+                            # Display the summary in chat
+                            with st.chat_message("assistant"):
+                                st.write(summary_response)
+                        except Exception as e:
+                            st.error(f"❌ Error summarizing: {str(e)}")
 
-    
-    # Check if there's a query and if the Qdrant is available
     if query_text and 'qdrant' in st.session_state:
-        # Add user's message to chat and display it
         st.chat_message("user").markdown(query_text)
         st.session_state.chat_history.append({"role": "user", "content": query_text})
 
-        # Generate response from the model without the button
-        with st.spinner('Thinking...'):
+        with st.spinner('🤖 Thinking...'):
             try:
                 retriever = st.session_state.qdrant.as_retriever()
                 document_processor = DocumentProcessor()
@@ -212,9 +206,10 @@ def main():
                 with st.chat_message("assistant"):
                     st.markdown(response)
             except Exception as e:
-                st.error(f'An error occurred: {str(e)}')
+                st.error(f'❌ An error occurred: {str(e)}')
     elif not uploaded_file and not query_text:
-        st.markdown('Document not yet uploaded.')
+        st.warning('⚠️ No document uploaded yet.')
+
 
 if __name__ == "__main__":
     main()

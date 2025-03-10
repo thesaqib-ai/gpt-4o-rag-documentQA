@@ -4,7 +4,7 @@ import os
 import json
 import logging
 import tempfile
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredExcelLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
@@ -35,9 +35,11 @@ class DocumentProcessor:
             return self._get_pdf_pages(uploaded_file)
         elif file_extension in [".docx", ".doc"]:
             return self._get_word_pages(uploaded_file)
+        elif file_extension in [".xlsx", ".xls"]:
+            return self._get_excel_pages(uploaded_file)
         else:
-            logging.error('Unsupported file type, Please insert a PDF or Word document.')
-            raise ValueError('Unsupported File Type, Please insert a PDF or Word document.')
+            logging.error('Unsupported file type, Please insert a PDF, Word, or Excel document.')
+            raise ValueError('Unsupported File Type, Please insert a PDF, Word, or Excel document.')
 
     def _get_pdf_pages(self, uploaded_file):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf", mode='wb') as temp_file:
@@ -61,6 +63,16 @@ class DocumentProcessor:
         pages = loader.load()
         return pages
 
+    def _get_excel_pages(self, uploaded_file):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1], mode='wb') as temp_file:
+            chunk_size = 8192
+            for chunk in iter(lambda: uploaded_file.read(chunk_size), b""):
+                temp_file.write(chunk)
+            temp_file_path = temp_file.name
+
+        loader = UnstructuredExcelLoader(temp_file_path, mode="elements")
+        pages = loader.load()
+        return pages
 
     def create_embeddings(self, document_pages, uploaded_file):
         # Initialize the text splitter

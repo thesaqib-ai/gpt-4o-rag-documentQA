@@ -156,7 +156,7 @@ def main():
     with st.sidebar:
         st.title('Hi there!')
         st.markdown('Drop your docs here:')
-        uploaded_file = st.file_uploader('Upload a PDF or Word file:', type=['pdf', 'docx', 'doc'])
+        uploaded_file = st.file_uploader('Upload a PDF or Word file:', type=['pdf', 'docx', 'doc','xlsx','xls'])
     
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []

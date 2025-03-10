@@ -7,6 +7,3 @@ langchain-openai
 langchain-core
 pypdf
 docx2txt
-unstructured
-openpyxl
-libreoffice

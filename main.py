@@ -180,12 +180,14 @@ def main():
                         document_processor = DocumentProcessor()
                         summary_response = document_processor.generate_response(retriever, summary_query)
                         st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
-                        
-                        # Display the summary in the chat history
-                        with st.chat_message("assistant"):
-                            st.markdown(summary_response)  # Changed from st.write to st.markdown
+                        # # Display the summary in the chat history
+                        # with st.chat_message("assistant"):
+                        #     st.markdown(summary_response)  # Changed from st.write to st.markdown
                     except Exception as e:
                         st.error(f"❌ Error summarizing: {str(e)}")
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
                         
     if query_text and 'qdrant' in st.session_state:

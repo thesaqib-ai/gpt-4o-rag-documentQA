@@ -166,14 +166,12 @@ def main():
             except Exception as e:
                 st.error(f'❌ Error processing document: {str(e)}')
 
-    # Display summarize button properly
+  # Display summarize button in the sidebar
     if uploaded_file and 'qdrant' in st.session_state:
         with st.sidebar:
-            if st.button("📑 Summarize"):
+            if st.button("📑 Generate Summary"):
                 summary_query = "Provide a detailed summary of this document"
-                
-                # Display user's request
-                st.chat_message("user").markdown(summary_query)
+                # Display user's request in the chat history
                 st.session_state.chat_history.append({"role": "user", "content": summary_query})
                 
                 with st.spinner('⏳ Generating summary...'):
@@ -183,11 +181,12 @@ def main():
                         summary_response = document_processor.generate_response(retriever, summary_query)
                         st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
                         
-                        # Display the summary in chat
+                        # Display the summary in the chat history
                         with st.chat_message("assistant"):
                             st.markdown(summary_response)  # Changed from st.write to st.markdown
                     except Exception as e:
                         st.error(f"❌ Error summarizing: {str(e)}")
+
                         
     if query_text and 'qdrant' in st.session_state:
         st.chat_message("user").markdown(query_text)

@@ -70,15 +70,13 @@ class DocumentProcessor:
                 temp_file.write(chunk)
             temp_file_path = temp_file.name
     
-        # Use different strategy for Excel files
+        # Corrected Excel loader configuration
         loader = UnstructuredExcelLoader(
             temp_file_path,
-            mode="paged",  # Changed from "elements" to "paged"
-            post_processors=["clean_extra_whitespace"]
+            mode="single",  # Changed to proper mode
         )
         pages = loader.load()
         return pages
-
     def create_embeddings(self, document_pages, uploaded_file):
         # Initialize the text splitter
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=4000, chunk_overlap=200)

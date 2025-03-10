@@ -109,30 +109,30 @@ class DocumentProcessor:
             max_tokens=2048,
             max_retries=2
         )
-
+    
         template = """Use the following document to answer the question at the end. Go through the content and look for the answers.
         If you don't find relevant information in the document, don't try to make up an answer. You can reply to the greetings.
         
-
         {context}
-
+    
         Question: {question} according to this document
-
+    
         Helpful Answer:"""
-
+    
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
-
+    
         custom_rag_prompt = PromptTemplate.from_template(template)
-
+    
         rag_chain = (
             {"context": retriever | format_docs, "question": RunnablePassthrough()}
             | custom_rag_prompt
             | llm
             | StrOutputParser()
         )
-
+    
         return rag_chain.invoke(query_text)
+
 
 
 # Streamlit file uploader
@@ -189,10 +189,10 @@ def main():
                             
                             # Display the summary in chat
                             with st.chat_message("assistant"):
-                                st.write(summary_response)
+                                st.markdown(summary_response)  # Changed from st.write to st.markdown
                         except Exception as e:
                             st.error(f"❌ Error summarizing: {str(e)}")
-
+                        
     if query_text and 'qdrant' in st.session_state:
         st.chat_message("user").markdown(query_text)
         st.session_state.chat_history.append({"role": "user", "content": query_text})

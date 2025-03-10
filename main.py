@@ -142,7 +142,7 @@ def main():
     with st.sidebar:
         st.title('Hi there!')
         st.markdown('Drop your docs here:')
-        uploaded_file = st.file_uploader('Upload a pdf file:', type=['pdf'])
+        uploaded_file = st.file_uploader('Upload a PDF or Word file:', type=['pdf', 'docx', 'doc'])
     
     # Initialize chat session in Streamlit if not already present
     if "chat_history" not in st.session_state:
@@ -189,4 +189,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

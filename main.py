@@ -170,28 +170,25 @@ def main():
     if uploaded_file and 'qdrant' in st.session_state:
         with st.container():
             st.markdown("### 📄 Generate Summary")
-            col1, col2, col3 = st.columns([2, 1, 2])  # Centering the button
-            
-            with col2:
-                if st.button("📑 Summarize"):
-                    summary_query = "Provide a detailed summary of this document"
-                    
-                    # Display user's request
-                    st.chat_message("user").markdown(summary_query)
-                    st.session_state.chat_history.append({"role": "user", "content": summary_query})
-                    
-                    with st.spinner('⏳ Generating summary...'):
-                        try:
-                            retriever = st.session_state.qdrant.as_retriever()
-                            document_processor = DocumentProcessor()
-                            summary_response = document_processor.generate_response(retriever, summary_query)
-                            st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
-                            
-                            # Display the summary in chat
-                            with st.chat_message("assistant"):
-                                st.markdown(summary_response)  # Changed from st.write to st.markdown
-                        except Exception as e:
-                            st.error(f"❌ Error summarizing: {str(e)}")
+            if st.button("📑 Summarize"):
+                summary_query = "Provide a detailed summary of this document"
+                
+                # Display user's request
+                st.chat_message("user").markdown(summary_query)
+                st.session_state.chat_history.append({"role": "user", "content": summary_query})
+                
+                with st.spinner('⏳ Generating summary...'):
+                    try:
+                        retriever = st.session_state.qdrant.as_retriever()
+                        document_processor = DocumentProcessor()
+                        summary_response = document_processor.generate_response(retriever, summary_query)
+                        st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
+                        
+                        # Display the summary in chat
+                        with st.chat_message("assistant"):
+                            st.markdown(summary_response)  # Changed from st.write to st.markdown
+                    except Exception as e:
+                        st.error(f"❌ Error summarizing: {str(e)}")
                         
     if query_text and 'qdrant' in st.session_state:
         st.chat_message("user").markdown(query_text)

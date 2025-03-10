@@ -6,3 +6,4 @@ langchain-qdrant
 langchain-openai
 langchain-core
 pypdf
+docx2txt

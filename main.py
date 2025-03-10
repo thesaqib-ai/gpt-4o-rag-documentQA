@@ -169,10 +169,12 @@ def main():
             except Exception as e:
                 st.error(f'Error processing document: {str(e)}')
 
-   # Move the button inside the sidebar to prevent duplication
+    # Display summarize button once, outside the loop
     if uploaded_file and 'qdrant' in st.session_state:
-        with st.sidebar:
-            if st.button("Summarize Document"):
+        col1, col2 = st.columns([5, 1])  # Create layout with chat bar and button side-by-side
+        
+        with col2:
+            if st.button("📄 Summarize"):
                 summary_query = "provide detailed summary of this document"
     
                 # Display user's request in chat
@@ -186,10 +188,12 @@ def main():
                         document_processor = DocumentProcessor()
                         summary_response = document_processor.generate_response(retriever, summary_query)
                         st.session_state.chat_history.append({"role": "assistant", "content": summary_response})
+                        
+                        # Display the summary in the chat interface
                         with st.chat_message("assistant"):
                             st.markdown(summary_response)
                     except Exception as e:
-                        st.error(f'An error occurred while summarizing: {str(e)}')
+                        st.error(f'An error occurred while summarizing: {str(e)}")
 
     
     # Check if there's a query and if the Qdrant is available

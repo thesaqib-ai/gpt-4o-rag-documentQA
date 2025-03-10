@@ -69,8 +69,13 @@ class DocumentProcessor:
             for chunk in iter(lambda: uploaded_file.read(chunk_size), b""):
                 temp_file.write(chunk)
             temp_file_path = temp_file.name
-
-        loader = UnstructuredExcelLoader(temp_file_path, mode="elements")
+    
+        # Use different strategy for Excel files
+        loader = UnstructuredExcelLoader(
+            temp_file_path,
+            mode="paged",  # Changed from "elements" to "paged"
+            post_processors=["clean_extra_whitespace"]
+        )
         pages = loader.load()
         return pages
 

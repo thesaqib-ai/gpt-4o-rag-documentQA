@@ -193,7 +193,7 @@ def main():
                         with st.chat_message("assistant"):
                             st.markdown(summary_response)
                     except Exception as e:
-                        st.error(f'An error occurred while summarizing: {str(e)}")
+                        st.error(f"An error occurred while summarizing: {str(e)}")
 
     
     # Check if there's a query and if the Qdrant is available

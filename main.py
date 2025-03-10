@@ -191,7 +191,7 @@ def main():
                         
                         # Display the summary in the chat interface
                         with st.chat_message("assistant"):
-                            st.markdown(summary_response)
+                            st.write(summary_response)
                     except Exception as e:
                         st.error(f"An error occurred while summarizing: {str(e)}")
 

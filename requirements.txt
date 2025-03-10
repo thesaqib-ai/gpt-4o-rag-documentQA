@@ -7,7 +7,4 @@ langchain-openai
 langchain-core
 pypdf
 docx2txt
-unstructured 
-unstructured-inference 
-unstructured-excel 
-libreoffice-client
+unstructured

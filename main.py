@@ -168,8 +168,7 @@ def main():
 
     # Display summarize button properly
     if uploaded_file and 'qdrant' in st.session_state:
-        with st.container():
-            st.markdown("### 📄 Generate Summary")
+        with st.sidebar:
             if st.button("📑 Summarize"):
                 summary_query = "Provide a detailed summary of this document"
                 

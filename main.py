@@ -28,11 +28,16 @@ class DocumentProcessor:
         if not uploaded_file:
             logging.error('No file provided.')
             raise ValueError('File is empty or not provided!')
-        elif uploaded_file:
+        
+        file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+    
+        if file_extension == ".pdf":
             return self._get_pdf_pages(uploaded_file)
+        elif file_extension in [".docx", ".doc"]:
+            return self._get_word_pages(uploaded_file)
         else:
-            logging.error('Unsupported file type, Please insert pdf document.')
-            raise ValueError('Unsupported File Type, Please insert pdf document.')
+            logging.error('Unsupported file type, Please insert a PDF or Word document.')
+            raise ValueError('Unsupported File Type, Please insert a PDF or Word document.')
 
     def _get_pdf_pages(self, uploaded_file):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf", mode='wb') as temp_file:
@@ -44,7 +49,17 @@ class DocumentProcessor:
         loader = PyPDFLoader(temp_file_path)
         pages = loader.load()
         return pages
-
+        
+    def _get_word_pages(self, uploaded_file):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".docx", mode='wb') as temp_file:
+            chunk_size = 8192
+            for chunk in iter(lambda: uploaded_file.read(chunk_size), b""):
+                temp_file.write(chunk)
+            temp_file_path = temp_file.name
+    
+        loader = Docx2txtLoader(temp_file_path)
+        pages = loader.load()
+        return pages
 
 
     def create_embeddings(self, document_pages, uploaded_file):
